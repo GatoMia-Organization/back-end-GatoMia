@@ -10,7 +10,7 @@ namespace BackEndGatoMia.Repositories
 
         Task DeleteUserAsync(string userId);
 
-        Task<User> GetUserByEmailAsyn(string email);
+        Task<User> GetUserByEmailAsync(string email);
 
 
     }

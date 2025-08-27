@@ -20,8 +20,8 @@ public class FirebaseUserRepository : IUserRepository
 
     public async Task<User> GetUserByIdAsync(string userId)
     {
-        DocumentReference userRef = _firestoreDb.Collection("users").Document(userId);
-        DocumentSnapshot snapshot = await userRef.GetSnapshotAsync();
+        DocumentReference usersRef = _firestoreDb.Collection("users").Document(userId);
+        DocumentSnapshot snapshot = await usersRef.GetSnapshotAsync();
 
         if (snapshot.Exists)
         {
@@ -33,14 +33,29 @@ public class FirebaseUserRepository : IUserRepository
 
     public async Task UpdateUserAsync(User user)
     {
-        DocumentReference userRef = _firestoreDb.Collection("users").Document(user.Id);
-        await userRef.SetAsync(user);
+        DocumentReference usersRef = _firestoreDb.Collection("users").Document(user.Id);
+        await usersRef.SetAsync(user);
     }
 
     public async Task DeleteUserAsync(string userId)
     {
-        DocumentReference userRef = _firestoreDb.Collection("users").Document(userId);
-        await userRef.DeleteAsync();
+        DocumentReference usersRef = _firestoreDb.Collection("users").Document(userId);
+        await usersRef.DeleteAsync();
+    }
+
+    public async Task<User> GetUserByEmailAsync(string email)
+    {
+        CollectionReference usersRef = _firestoreDb.Collection("users");
+        Query query = usersRef.WhereEqualTo("email", email);
+
+        QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
+
+        if (querySnapshot.Documents.Count > 0)
+        {
+            DocumentSnapshot userSnapshot = querySnapshot.Documents[0];
+            return userSnapshot.ConvertTo<User>();
+        }
+        return null;
     }
 
 }

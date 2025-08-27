@@ -1,4 +1,3 @@
-using BCrypt.Net;
 using BackEndGatoMia.Models;
 using BackEndGatoMia.Repositories;
 
@@ -19,7 +18,7 @@ public class UserService
             throw new ArgumentException("Email e senha requeridos.");
         }
 
-        var existingUser = await _userRepository.GetUserByEmailAsyn(user.Email);
+        var existingUser = await _userRepository.GetUserByEmailAsync(user.Email);
         if (existingUser != null)
         {
             throw new InvalidOperationException("Usuário com esse email já existe.");
@@ -30,18 +29,43 @@ public class UserService
         await _userRepository.AddUserAsync(user);
 
     }
-    public User GetUserById(string userId)
+    public async Task<User> GetUserById(string userId)
     {
-        return null;
+        var user = await _userRepository.GetUserByIdAsync(userId);
+
+        if (user != null)
+        {
+            user.PasswordHash = null;
+        }
+
+        return user;
     }
-    public void UpdateUser(User user)
+    public async Task UpdateUser(User user)
     {
-
+        if (string.IsNullOrEmpty(user.Id))
+        {
+            throw new ArgumentException("Id de usuário não encontratado.");
+        }
+        await _userRepository.UpdateUserAsync(user);
     }
 
-    public void DeleteUser(string UserId)
+    public async Task DeleteUser(string userIdToDelete, string currentUserId)
     {
+        if (userIdToDelete == currentUserId)
+        {
+            throw new InvalidOperationException("Não é possível deletar a si mesmo.");
+        }
 
+        var user = await _userRepository.GetUserByIdAsync(userIdToDelete);
+
+        if (user == null)
+        {
+            throw new InvalidOperationException("Usuário não encontrado");
+        }
+
+        user.IsActive = false;
+
+        await _userRepository.UpdateUserAsync(user);
     }
 
 
