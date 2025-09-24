@@ -1,87 +1,75 @@
-using BackEndGatoMia.Models;
+using BackEndGatoMia.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
-namespace BackEndGatoMia.UserContollers
+using BackEndGatoMia.Services;
+
+namespace BackEndGatoMia.Controllers
 {
     [ApiController]
     [Route("api/users")]
-    public class UserContollers : ControllerBase
+    public class UsersController : ControllerBase
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public UserContollers(UserService userService)
+        public UsersController(IUserService userService)
         {
             _userService = userService;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto userDto)
         {
-            await _userService.AddUser(user);
-
-            return Ok(new { message = "Usuário criado com sucesso" });
+            try
+            {
+                var createdUser = await _userService.AddUserAsync(userDto);
+                return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id }, createdUser);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
-            try
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null)
             {
-                var user = await _userService.GetUserById(id);
-
-                if (user == null)
-                {
-                    return NotFound();
-                }
-                return Ok(user);
+                return NotFound(new { message = "Usuário não encontrado." });
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Ocorreu um erro interno", error = ex.Message });
-            }
+            return Ok(user);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] User user)
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDto userDto)
         {
-            if (id != user.Id)
-            {
-                return BadRequest(new { message = "O ID na rota não corresponde ao ID do usuário no corpo da requisição" });
-            }
             try
             {
-                await _userService.UpdateUser(user);
-                return Ok(new { message = "Usuário atualizado com sucesso!" });
+                await _userService.UpdateUserAsync(id, userDto);
+                return NoContent();
             }
             catch (InvalidOperationException ex)
             {
                 return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Ocorreu um erro interno.", error = ex.Message });
             }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            if (string.IsNullOrEmpty(id))
-            {
-                return BadRequest(new { message = "O ID do usuário é obrigatório para a deleção" });
-            }
             try
             {
-                await _userService.DeleteUser(id, "ID_USUARIO_LOGADO");
-
-                return Ok(new { message = "Usuário deletado com sucesso!" });
+                var currentUserId_placeholder = "admin-id-temporario"; 
+                await _userService.DeleteUserAsync(id, currentUserId_placeholder);
+                return Ok(new { message = "Usuário desativado com sucesso!" });
             }
-            catch (InvalidDataException ex)
+            catch (InvalidOperationException ex)
             {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Ocorreu um erro interno", error = ex.Message });
+                return BadRequest(new { message = ex.Message });
             }
         }
     }
