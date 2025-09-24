@@ -1,15 +1,30 @@
+using System.IO;
+using Google.Cloud.Firestore;
+using BackEndGatoMia.Repositories;
+using BackEndGatoMia.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// --- INICIALIZAÇÃO EXPLÍCITA DO FIREBASE ---
+string projectId = "gatomiateste"; // <-- COLOQUE SEU ID AQUI!
+var credentialPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "serviceAccountKey.json");
+Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialPath);
+var firestoreDb = FirestoreDb.Create(projectId);
+builder.Services.AddSingleton(firestoreDb);
+// --- FIM DA INICIALIZAÇÃO ---
 
+// Registro de Serviços e Repositórios
+builder.Services.AddScoped<IUserRepository, FirebaseUserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+// Serviços padrão
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure o pipeline de requisições HTTP.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -17,17 +32,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
+app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

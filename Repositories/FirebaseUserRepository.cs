@@ -5,57 +5,44 @@ using BackEndGatoMia.Repositories;
 public class FirebaseUserRepository : IUserRepository
 {
     private readonly FirestoreDb _firestoreDb;
+    private readonly CollectionReference _usersCollection;
 
     public FirebaseUserRepository(FirestoreDb firestoreDb)
     {
         _firestoreDb = firestoreDb;
+        _usersCollection = _firestoreDb.Collection("users");
     }
 
-    public async Task AddUserAsync(User user)
+    public async Task<User> AddUserAsync(User user)
     {
-        CollectionReference usersCollectionRef = _firestoreDb.Collection("users");
-
-        await usersCollectionRef.AddAsync(user);
+        DocumentReference docRef = await _usersCollection.AddAsync(user);
+        user.Id = docRef.Id;
+        return user;
     }
 
     public async Task<User> GetUserByIdAsync(string userId)
     {
-        DocumentReference usersRef = _firestoreDb.Collection("users").Document(userId);
-        DocumentSnapshot snapshot = await usersRef.GetSnapshotAsync();
-
-        if (snapshot.Exists)
-        {
-            return snapshot.ConvertTo<User>();
-        }
-
-        return null;
+        DocumentReference docRef = _usersCollection.Document(userId);
+        DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+        return snapshot.Exists ? snapshot.ConvertTo<User>() : null;
+    }
+    
+    public async Task<User> GetUserByEmailAsync(string email)
+    {
+        Query query = _usersCollection.WhereEqualTo("email", email).Limit(1);
+        QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
+        return querySnapshot.Documents.Count > 0 ? querySnapshot.Documents[0].ConvertTo<User>() : null;
     }
 
     public async Task UpdateUserAsync(User user)
     {
-        DocumentReference usersRef = _firestoreDb.Collection("users").Document(user.Id);
-        await usersRef.SetAsync(user);
+        DocumentReference docRef = _usersCollection.Document(user.Id);
+        await docRef.SetAsync(user, SetOptions.MergeAll);
     }
 
     public async Task DeleteUserAsync(string userId)
     {
-        DocumentReference usersRef = _firestoreDb.Collection("users").Document(userId);
-        await usersRef.DeleteAsync();
+        DocumentReference docRef = _usersCollection.Document(userId);
+        await docRef.DeleteAsync();
     }
-
-    public async Task<User> GetUserByEmailAsync(string email)
-    {
-        CollectionReference usersRef = _firestoreDb.Collection("users");
-        Query query = usersRef.WhereEqualTo("email", email);
-
-        QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
-
-        if (querySnapshot.Documents.Count > 0)
-        {
-            DocumentSnapshot userSnapshot = querySnapshot.Documents[0];
-            return userSnapshot.ConvertTo<User>();
-        }
-        return null;
-    }
-
 }

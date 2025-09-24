@@ -4,7 +4,7 @@ namespace BackEndGatoMia.Repositories
 {
     public interface IUserRepository
     {
-        Task AddUserAsync(User user);
+        Task<User> AddUserAsync(User user);
         Task<User> GetUserByIdAsync(string userId);
         Task UpdateUserAsync(User user);
 
