@@ -1,7 +1,6 @@
 using BackEndGatoMia.Models;
 using BackEndGatoMia.Models.DTOs;
 using BackEndGatoMia.Repositories;
-using BackEndGatoMia.Services;
 
 
 namespace BackEndGatoMia.Services
@@ -31,7 +30,7 @@ namespace BackEndGatoMia.Services
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDto.Password),
                 IsActive = true,
                 DateRegistration = DateTime.UtcNow,
-                UserTypeId = userDto.UserTypeId
+                Role = Models.Enums.UserRole.User // Padrão para novo usuário
             };
 
             var createdUser = await _userRepository.AddUserAsync(user);
@@ -42,7 +41,8 @@ namespace BackEndGatoMia.Services
                 Name = createdUser.Name,
                 Email = createdUser.Email,
                 Phone = createdUser.Phone,
-                IsActive = createdUser.IsActive
+                IsActive = createdUser.IsActive,
+                Role = createdUser.Role
             };
         }
 

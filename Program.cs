@@ -3,6 +3,10 @@ using Google.Cloud.Firestore;
 using BackEndGatoMia.Repositories;
 using BackEndGatoMia.Services;
 
+
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // --- INICIALIZAÇÃO EXPLÍCITA DO FIREBASE ---
@@ -16,6 +20,20 @@ builder.Services.AddSingleton(firestoreDb);
 // Registro de Serviços e Repositórios
 builder.Services.AddScoped<IUserRepository, FirebaseUserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          // Diga ao seu backend para aceitar requisições desta origem:
+                          policy.WithOrigins("http://localhost:5173") 
+                                .AllowAnyHeader() // Permite qualquer cabeçalho (como o 'Authorization')
+                                .AllowAnyMethod(); // Permite qualquer método (GET, POST, PUT, etc.)
+                      });
+});
+
 
 // Serviços padrão
 builder.Services.AddControllers();
@@ -31,7 +49,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
+app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
