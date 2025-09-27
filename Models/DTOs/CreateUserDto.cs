@@ -19,5 +19,6 @@ namespace BackEndGatoMia.Models.DTOs
         [Phone(ErrorMessage = "O formato do telefone é inválido.")]
         public string? Phone { get; set; }
 
+        public int UserTypeId { get; set; } = 3; // Padrão para usuário comum
     }
 }
