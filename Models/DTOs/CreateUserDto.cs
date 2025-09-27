@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using BackEndGatoMia.Models.Enums;
 
 namespace BackEndGatoMia.Models.DTOs
 {
@@ -16,9 +17,7 @@ namespace BackEndGatoMia.Models.DTOs
         [MinLength(6, ErrorMessage = "A senha deve ter no mínimo 6 caracteres.")]
         public string Password { get; set; }
 
-        [Phone(ErrorMessage = "O formato do telefone é inválido.")]
-        public string? Phone { get; set; }
+        public string? Phone { get; set; } = string.Empty; // Telefone é opcional
 
-        public int UserTypeId { get; set; } = 3; // Padrão para usuário comum
     }
 }

@@ -1,3 +1,5 @@
+using BackEndGatoMia.Models.Enums;
+
 namespace BackEndGatoMia.Models.DTOs
 {
     // DTO seguro para retornar dados do usuário ao cliente
@@ -8,5 +10,7 @@ namespace BackEndGatoMia.Models.DTOs
         public string Email { get; set; }
         public string? Phone { get; set; }
         public bool IsActive { get; set; }
+
+        public UserRole Role { get; set; }
     }
 }

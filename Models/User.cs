@@ -1,4 +1,5 @@
 using Google.Cloud.Firestore;
+using BackEndGatoMia.Models.Enums;
 
 namespace BackEndGatoMia.Models
 {
@@ -28,11 +29,7 @@ namespace BackEndGatoMia.Models
         [FirestoreProperty("isActive")]
         public bool IsActive { get; set; } = true;
 
-        [FirestoreProperty("userTypeId")]
-        public int UserTypeId { get; set; } = 3;
-
-        [FirestoreProperty]
-        public UserType? UserType { get; set; }
-        
+        [FirestoreProperty("role")]
+        public UserRole Role { get; set; } = UserRole.User;
     }
 }
