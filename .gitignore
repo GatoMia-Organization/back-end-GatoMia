@@ -14,8 +14,8 @@ appsettings.Development.json
 # .NET / VISUAL STUDIO
 # =========================
 # Pastas de compilação e build (essencial ignorar)
-[Bb]in/
-[Oo]bj/
+bin/
+obj/
 
 # Arquivos e pastas de configuração do Visual Studio e IDEs
 .vs/
