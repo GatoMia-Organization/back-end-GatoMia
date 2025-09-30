@@ -1,0 +1,36 @@
+# Arquivo gerado em 24 de setembro de 2025
+
+# =========================
+# SEGREDOSE CREDENCIAIS
+# =========================
+# Chave de serviço do Google Cloud / Firebase. NUNCA ENVIE ISSO!
+serviceAccountKey.json
+
+# Configurações de ambiente de desenvolvimento que podem conter segredos
+appsettings.Development.json
+
+
+# =========================
+# .NET / VISUAL STUDIO
+# =========================
+# Pastas de compilação e build (essencial ignorar)
+bin/
+obj/
+
+# Arquivos e pastas de configuração do Visual Studio e IDEs
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Cache de ferramentas de build
+.DS_Store
+TestResults/
+BenchmarkDotNet.Artifacts/
+
+# Arquivos de log
+*.log
+
+# Rider / JetBrains
+.idea/
